@@ -1,32 +1,169 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de productos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #333333;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .button {
+            background-color: #28a745;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5eb;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e1e5eb;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .link-button,
+        .delete-button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .details {
+            background-color: #17a2b8;
+            color: #ffffff;
+        }
+
+        .edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: #ffffff;
+        }
+
+        .details:hover {
+            background-color: #138496;
+        }
+
+        .edit:hover {
+            background-color: #e0a800;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #6c757d;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
+        <h1>Catálogo de productos</h1>
+        <div class="actions">
+            <a class="button" th:href="@{/products/new}">Agregar producto</a>
+        </div>
         <table>
             <thead>
                 <tr>
-                    <th>Id</th>
                     <th>Nombre</th>
                     <th>Precio</th>
-                    <th>Categoria</th>
+                    <th>Categoría</th>
                     <th>Imagen</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="product : ${products}">
-                    <td th:text="${product.id}"></td>
-                    <td th:text="${product.name}">DefaultName</td>
-                    <td th:text="${product.price}">DefaultPrice</td>
-                    <td th:text="${product.category}">DefaultCategory</td>
-                    <td><img th:src="@{${product.imageUrl}}"></td>
+                    <td th:text="${product.name}">Nombre</td>
+                    <td th:text="${#numbers.formatDecimal(product.price, 1, 'POINT', 2, 'ZERO_PAD')}">0.00</td>
+                    <td th:text="${product.category}">Categoría</td>
                     <td>
-                        <a th:href="@{'productdetail/' + ${product.id}}">Detalles</a>
+                        <img th:src="@{${product.imageUrl}}" alt="Imagen del producto" class="thumbnail" />
                     </td>
+                    <td>
+                        <div class="row-actions">
+                            <a th:href="@{'/products/' + ${product.id}}" class="link-button details">Detalles</a>
+                            <a th:href="@{'/products/' + ${product.id} + '/edit'}" class="link-button edit">Editar</a>
+                            <form th:action="@{'/products/' + ${product.id}}" method="post" onsubmit="return confirm('¿Desea eliminar este producto?');">
+                                <input type="hidden" name="_method" value="delete" />
+                                <button type="submit" class="delete-button">Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${products == null or #lists.isEmpty(products)}">
+                    <td colspan="5" class="empty-state">No hay productos registrados.</td>
                 </tr>
             </tbody>
         </table>
